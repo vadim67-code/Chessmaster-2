@@ -12,10 +12,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout source
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17
+      - name: Set up JDK
         uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -26,12 +26,17 @@ jobs:
         with:
           gradle-version: '8.9'
 
+      - name: Extract project
+        run: |
+          unzip -q ChessMaster_GitHub_APK_Build.zip -d project
+
       - name: Build APK
-        run: gradle assembleDebug
+        run: |
+          cd project/ChessMasterAndroid
+          gradle assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: ChessMaster-debug-apk
-          path: app/build/outputs/apk/debug/app-debug.apk
-          if-no-files-found: error
+          path: project/ChessMasterAndroid/app/build/outputs/apk/debug/app-debug.apk
