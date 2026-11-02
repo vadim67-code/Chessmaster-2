@@ -1,3 +1,4 @@
+
 name: Build Chess Master APK
 
 on:
@@ -27,8 +28,26 @@ jobs:
           gradle-version: '8.9'
 
       - name: Extract project
+        run: unzip -q ChessMaster_GitHub_APK_Build.zip -d project
+
+      - name: Fix Java and Kotlin versions
         run: |
-          unzip -q ChessMaster_GitHub_APK_Build.zip -d project
+          python3 - <<'PY'
+          p = 'project/ChessMasterAndroid/app/build.gradle'
+          s = open(p).read()
+          s = s.replace(
+              '    defaultConfig {',
+              """    compileOptions {
+                  sourceCompatibility JavaVersion.VERSION_17
+                  targetCompatibility JavaVersion.VERSION_17
+              }
+              kotlinOptions {
+                  jvmTarget = '17'
+              }
+              defaultConfig {"""
+          )
+          open(p, 'w').write(s)
+          PY
 
       - name: Build APK
         run: |
@@ -40,3 +59,5 @@ jobs:
         with:
           name: ChessMaster-debug-apk
           path: project/ChessMasterAndroid/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          
